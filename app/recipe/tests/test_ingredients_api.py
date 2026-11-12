@@ -24,6 +24,7 @@ def detail_url(ingredient_id):
     """Create and return an ingredient detail URL."""
     return reverse("recipe:ingredient-detail", args=[ingredient_id])
 
+
 def create_user(email="user@example.com", password="testpass123"):
     """Create and return a user."""
     return get_user_model().objects.create_user(email=email, password=password)
@@ -62,7 +63,6 @@ class PrivateIngredientsApiTests(TestCase):
         serializer = IngredientSerializer(ingredients, many=True)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
-
 
     def test_ingredients_limited_to_user(self):
         """Test list of ingredients is limited to authenticated user."""

@@ -8,7 +8,6 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 
-
 class HealthCheckTests(TestCase):
     """Test the health check API."""
 
@@ -19,4 +18,3 @@ class HealthCheckTests(TestCase):
         res = client.get(url)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-

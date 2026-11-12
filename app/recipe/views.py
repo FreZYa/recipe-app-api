@@ -24,6 +24,7 @@ from core.models import (
 )
 from recipe import serializers
 
+
 @extend_schema_view(
     list=extend_schema(
         parameters=[
@@ -123,7 +124,8 @@ class BaseRecipeAttrViewSet(mixins.DestroyModelMixin,
 
         return queryset.filter(
             user=self.request.user
-            ).order_by("-name").distinct()
+        ).order_by("-name").distinct()
+
 
 class TagViewSet(BaseRecipeAttrViewSet):
     """Manage tags in the database."""
@@ -135,7 +137,3 @@ class IngredientViewSet(BaseRecipeAttrViewSet):
     """Manage ingredients in the database."""
     serializer_class = serializers.IngredientSerializer
     queryset = Ingredient.objects.all()
-
-
-
-

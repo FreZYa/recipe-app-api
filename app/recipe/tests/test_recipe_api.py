@@ -32,9 +32,11 @@ def detail_url(recipe_id):
     """Create and return a recipe detail URL."""
     return reverse("recipe:recipe-detail", args=[recipe_id])
 
+
 def image_upload_url(recipe_id):
     """Create and return an image upload URL."""
     return reverse('recipe:recipe-upload-image', args=[recipe_id])
+
 
 def create_recipe(user, **params):
     """Create and return a simple recipe."""
@@ -49,6 +51,7 @@ def create_recipe(user, **params):
 
     recipe = Recipe.objects.create(user=user, **defaults)
     return recipe
+
 
 def create_user(**params):
     """Create and return a new user."""
@@ -230,7 +233,7 @@ class PrivateRecipeAPITests(TestCase):
     def test_create_recipe_with_existing_tag(self):
         """Test creating a recipe with existing tag."""
         tag_indian = Tag.objects.create(user=self.user, name="Indian")
-        payload={
+        payload = {
             "title": "Pongal",
             "time_minutes": 60,
             "price": Decimal("4.50"),
@@ -416,8 +419,10 @@ class PrivateRecipeAPITests(TestCase):
         self.assertIn(s2.data, res.data)
         self.assertNotIn(s3.data, res.data)
 
+
 class ImageUploadTests(TestCase):
     """Tests for the image upload API."""
+
     def setUp(self):
         self.client = APIClient()
         self.user = get_user_model().objects.create_user(
@@ -426,8 +431,10 @@ class ImageUploadTests(TestCase):
         )
         self.client.force_authenticate(self.user)
         self.recipe = create_recipe(user=self.user)
+
     def tearDown(self):
         self.recipe.image.delete()
+
     def test_upload_image(self):
         """Test uploading an image to a recipe."""
         url = image_upload_url(self.recipe.id)
@@ -441,10 +448,10 @@ class ImageUploadTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertIn('image', res.data)
         self.assertTrue(os.path.exists(self.recipe.image.path))
+
     def test_upload_image_bad_request(self):
         """Test uploading an invalid image."""
         url = image_upload_url(self.recipe.id)
         payload = {'image': 'notanimage'}
         res = self.client.post(url, payload, format='multipart')
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-
