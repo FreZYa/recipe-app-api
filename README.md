@@ -1,58 +1,88 @@
 # 🍽️ Recipe App API
 
-Modern bir yemek tarifi yönetim sistemi — Django REST Framework ile geliştirilmiş, Docker ile konteynerize edilmiş ve production-ready!
+[![Checks](https://github.com/FreZYa/recipe-app-api/actions/workflows/checks.yml/badge.svg)](https://github.com/FreZYa/recipe-app-api/actions/workflows/checks.yml)
 
----
+Django REST Framework ile yazılmış bir yemek tarifi API'si. Kullanıcılar tarif, malzeme ve etiket oluşturup yönetebilir, tariflere görsel yükleyebilir. Proje Docker ile çalışır, testleri ve lint kontrolleri GitHub Actions'ta koşar, production için Nginx + uWSGI kurulumu vardır.
 
-## 🚀 Proje Hakkında
+## Özellikler
 
-**Recipe App API**, kullanıcıların yemek tariflerini oluşturup yönetebileceği, modern Python geliştirme pratikleriyle yazılmış bir RESTful API'dir. Geliştiriciler için ölçeklenebilir, güvenli ve genişletilebilir bir altyapı sunar. CI/CD pipeline'ı ve kapsamlı API dokümantasyonu ile tam anlamıyla production ortamına hazırdır.
+- **Kullanıcı yönetimi:** e-posta ile kayıt, token tabanlı kimlik doğrulama, profil güncelleme
+- **Tarifler:** oluşturma, listeleme, güncelleme, silme; etiket ve malzemeye göre filtreleme
+- **Malzeme ve etiketler:** tarif oluştururken iç içe (nested) oluşturma
+- **Görsel yükleme:** tariflere resim ekleme
+- **API dokümantasyonu:** drf-spectacular ile OpenAPI şeması ve Swagger UI
+- **Testler:** model, API ve yönetim komutları için Django test suite'i
+- **Production kurulumu:** Nginx reverse proxy + uWSGI, ayrı `docker-compose-deploy.yml`
 
----
+## Teknolojiler
 
-## ✨ Özellikler
+| | |
+|---|---|
+| Dil | Python 3.9 |
+| Framework | Django 3.2, Django REST Framework 3.12 |
+| Veritabanı | PostgreSQL 13 |
+| Dokümantasyon | drf-spectacular (OpenAPI 3) |
+| Altyapı | Docker, Docker Compose, Nginx, uWSGI |
+| CI | GitHub Actions (test + flake8) |
 
-- ✅ **RESTful API:** Modern REST API standartlarına uygun endpoint'ler  
-- 🔐 **Authentication & Authorization:** Güvenli kullanıcı kimlik doğrulama sistemi  
-- 🍲 **Recipe Management:** Tarif oluşturma, düzenleme, silme ve listeleme  
-- 🧂 **Ingredient Management:** Malzeme yönetimi  
-- 🏷️ **Tag System:** Tarifleri etiketleyerek kategorize etme  
-- 🖼️ **Image Upload:** Tarif görselleri yükleme  
-- 👤 **User Profiles:** Kullanıcı profil yönetimi  
-- 🐳 **Docker Support:** Tam Docker desteği ile kolay deployment  
-- ⚙️ **CI/CD:** GitHub Actions ile otomatik test ve deployment süreci  
-- 📖 **API Documentation:** Swagger/OpenAPI ile detaylı API dokümantasyonu  
+## Kurulum (geliştirme)
 
----
-
-## 🛠️ Kullanılan Teknolojiler
-
-- **Python 3.9+**
-- **Django 4.x**
-- **Django REST Framework**
-- **PostgreSQL** (Docker içinde sağlanır)
-- **Docker & Docker Compose**
-- **Nginx** (Reverse Proxy)
-- **GitHub Actions** (CI/CD Pipeline)
-- **Swagger / OpenAPI** (API dokümantasyonu)
-
----
-
-## 📋 Gereksinimler
-
-Aşağıdaki araçların sisteminizde kurulu olması gerekir:
-
-- **Python 3.9+**
-- **Docker & Docker Compose**
-- (PostgreSQL, Docker ile birlikte otomatik olarak sağlanır)
-
----
-
-## 🚧 Kurulum
-
-Projeyi başlatmak için aşağıdaki adımları takip edebilirsiniz:
+Gereksinim: Docker ve Docker Compose.
 
 ```bash
-git clone https://github.com/kullanici_adi/recipe-app-api.git
+git clone https://github.com/FreZYa/recipe-app-api.git
 cd recipe-app-api
-docker-compose up --build
+docker compose up --build
+```
+
+API `http://localhost:8000` adresinde çalışır.
+
+| Adres | İçerik |
+|---|---|
+| `/api/docs/` | Swagger UI |
+| `/api/schema` | OpenAPI şeması |
+| `/api/health-check/` | Sağlık kontrolü |
+| `/admin/` | Django admin |
+
+Admin kullanıcısı oluşturmak için:
+
+```bash
+docker compose run --rm app sh -c "python manage.py createsuperuser"
+```
+
+## Testler ve lint
+
+```bash
+docker compose run --rm app sh -c "python manage.py wait_for_db && python manage.py test"
+docker compose run --rm app sh -c "flake8"
+```
+
+## Production'a alma
+
+1. `.env.sample` dosyasını `.env` olarak kopyalayın ve değerleri doldurun (`DJANGO_SECRET_KEY`, veritabanı bilgileri, `DJANGO_ALLOWED_HOSTS`).
+2. Çalıştırın:
+
+```bash
+docker compose -f docker-compose-deploy.yml up -d --build
+```
+
+Uygulama Nginx üzerinden 80 numaralı portta yayınlanır. Statik dosyalar ve yüklenen görseller ayrı bir volume'da tutulur.
+
+## API uçları
+
+| Method | Endpoint | Açıklama |
+|---|---|---|
+| POST | `/api/user/create/` | Kullanıcı kaydı |
+| POST | `/api/user/token/` | Token alma |
+| GET, PUT, PATCH | `/api/user/me/` | Profil |
+| GET, POST | `/api/recipe/recipes/` | Tarif listesi / oluşturma |
+| GET, PUT, PATCH, DELETE | `/api/recipe/recipes/{id}/` | Tarif detayı |
+| POST | `/api/recipe/recipes/{id}/upload-image/` | Tarif görseli yükleme |
+| GET | `/api/recipe/tags/` | Etiket listesi |
+| PUT, PATCH, DELETE | `/api/recipe/tags/{id}/` | Etiket güncelleme / silme |
+| GET | `/api/recipe/ingredients/` | Malzeme listesi |
+| PUT, PATCH, DELETE | `/api/recipe/ingredients/{id}/` | Malzeme güncelleme / silme |
+
+Tarifler etiket ve malzemeye göre filtrelenebilir: `/api/recipe/recipes/?tags=1,2&ingredients=3`. Etiketler ve malzemeler tarif oluşturulurken iç içe gönderilerek yaratılır.
+
+Tüm uçların güncel ve ayrıntılı listesi için `/api/docs/` adresine bakın.
