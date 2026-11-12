@@ -159,5 +159,5 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-# Local Docker volumes (Postgres data, uploaded media)
+# Local data (older setups used bind mounts here)
 data/
